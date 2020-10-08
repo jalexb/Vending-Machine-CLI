@@ -73,6 +73,8 @@ namespace Capstone
             Console.WriteLine();
             for (int i = 0; i < options.Length; i++)
             {
+                if (i == 3)
+                    continue;
                 int optionNum = i + 1;
                 Console.WriteLine(optionNum + ") " + options[i]);
             }
