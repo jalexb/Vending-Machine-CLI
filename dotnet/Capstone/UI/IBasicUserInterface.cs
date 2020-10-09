@@ -11,5 +11,7 @@ namespace Capstone
         void PauseOutput();
 
         Object PromptForSelection(Object[] options);
+
+        Object GetChoiceFromUserInput(Object[] options);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Capstone
@@ -40,16 +41,20 @@ namespace Capstone
         /// </summary>
         /// <param name="options"></param>
         /// <returns>the object selected or null</returns>
-        private Object GetChoiceFromUserInput(Object[] options)
+        public Object GetChoiceFromUserInput(Object[] options)
         {
             Object choice = null;
             String userInput = Console.ReadLine();
             try
             {
-                int selectedOption = int.Parse(userInput);
-                if (selectedOption > 0 && selectedOption <= options.Length)
+                
+                if (options.Length > 4)
                 {
-                    choice = options[selectedOption - 1];
+                    choice = (options.Contains(userInput.ToUpper())) ? userInput: null;
+                }
+                else if (int.Parse(userInput) > 0 && int.Parse(userInput) <= options.Length)
+                {
+                    choice = options[int.Parse(userInput) - 1];
                 }
             }
             catch (Exception e)

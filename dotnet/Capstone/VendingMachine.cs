@@ -14,11 +14,13 @@ namespace Capstone
         private readonly string[] MAIN_MENU_OPTIONS = { MAIN_MENU_OPTION_DISPLAY_ITEMS, MAIN_MENU_OPTION_PURCHASE, MAIN_MENU_OPTION_EXIT, MAIN_MENU_OPTION_SALES_REPORT }; //const has to be known at compile time, the array initializer is not const in C#
 
 
-        private const string PURCHASE_MENU_OPTION_GETBALANCE = "Add Money To Purchase Items(Whole Dollars)";
+        private const string PURCHASE_MENU_OPTION_GETBALANCE = "Add Money To Purchase Items(1, 2, 5, 10, 20)";
         private const string PURCHASE_MENU_ITEM = "Select An Item To Purchase";   
         private const string PURCHASE_MENU_OPTION_FINISH_TRANSACTION = "Finish Transaction";
         private readonly string[] PURCHASE_MENU_OPTIONS = { PURCHASE_MENU_OPTION_GETBALANCE, PURCHASE_MENU_ITEM, PURCHASE_MENU_OPTION_FINISH_TRANSACTION };
         private readonly IBasicUserInterface ui = new MenuDrivenCLI();
+
+        private string STRING_OF_SLOTS = "";
         
         public Dictionary<string, int> endOfDaySalesReport = new Dictionary<string, int>();
         VendingMachineAuditReport totalSalesReport = new VendingMachineAuditReport();
@@ -63,18 +65,22 @@ namespace Capstone
 
             while (!isTransactionFinished)
             {
-                Console.WriteLine("\nBalance: " + balance);
+                Console.WriteLine($"\n{balance,0:C}\n");
 
                 string selection = (string)ui.PromptForSelection(PURCHASE_MENU_OPTIONS);
                 if (selection == PURCHASE_MENU_OPTION_GETBALANCE)
                 {
+                    string[] wholeDollarAmount = { "1", "2", "5", "10", "20" };
+                    Console.WriteLine($"{selection}");
 
-                    //When a deposit is made, the audit file writes 
-                    //01/01/2019 12:00:00 PM FEED MONEY: $5.00 $5.00 
-                    //01/01/2019 12:00:15 PM FEED MONEY: $5.00 $10.00 
+                    object depositCheck = null;
+                    while (depositCheck == null)
+                    {
+                        depositCheck = ui.GetChoiceFromUserInput(wholeDollarAmount);//GetChoiceFromUserInput will make sure amount is valid
+                    }
 
-                    Console.WriteLine("Your current balance is: " + balance + "\nPut A Whole Dollar Amount");
-                    int deposit = int.Parse(Console.ReadLine());
+                    int deposit = int.Parse(depositCheck.ToString());
+                   
                     balance += deposit;
 
                     VendingMachineAuditReport auditDepositReport = new VendingMachineAuditReport(balance, deposit);
@@ -83,10 +89,16 @@ namespace Capstone
                 }
                 else if (selection == PURCHASE_MENU_ITEM)
                 {
+                    Console.WriteLine(selection);
+                    string[] array_of_slots = STRING_OF_SLOTS.Split(" ");
 
+                    object validSlotCheck = "";
+                    while (validSlotCheck == null || (object)validSlotCheck == "")
+                    {
+                        validSlotCheck = ui.GetChoiceFromUserInput(array_of_slots);//GetChoiceFromUserInput will make sure product slot selected is valid
+                    }
+                    string input = validSlotCheck.ToString().ToUpper();
 
-                    Console.WriteLine("Enter the Product Slot To Purchase");
-                    string input = Console.ReadLine();
                     if (productList[input].Price > balance)
                     {
                         Console.WriteLine("\nInsufficient Funds; Please Deposit Additional Funds");
@@ -98,7 +110,7 @@ namespace Capstone
                     }
                     else
                     {
-                        //purchase a product
+                        
                         Console.WriteLine(productList[input].OutPutMessage);
                         balance -= productList[input].Price;
                         productList[input].AmountOfProduct--;
@@ -207,7 +219,7 @@ namespace Capstone
                     decimal price = decimal.Parse(productArray[2]);
                     string name = productArray[1];
                     string slot = productArray[0];
-
+                    STRING_OF_SLOTS = $"{slot} {STRING_OF_SLOTS}";
                     endOfDaySalesReport[name] = 0;
 
                     switch (type)
@@ -218,7 +230,7 @@ namespace Capstone
                         case "Gum":
                             inventoryList[slot] = new Gum(slot, name, price);                            
                             break;
-                        case "Beverage":
+                        case "Drink":
                             inventoryList[slot] = new Beverage(slot, name, price);                            
                             break;
                         case "Candy":
